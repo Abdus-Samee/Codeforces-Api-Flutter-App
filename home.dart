@@ -7,11 +7,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class HomePage extends StatefulWidget {
 
   List<charts.Series<Task,String>> _series = List<charts.Series<Task,String>>();
+  List<charts.Series<VerdictTypes,String>> _bar = List<charts.Series<VerdictTypes,String>>();
+  List<charts.Series<Rating,int>> _line = List<charts.Series<Rating,int>>();
+  
   Map<String, int> map = Map<String,int>();
+  Map<String,  int> verdictMap = Map<String, int>();
+  Map<int,  int> ratingMap = Map<int, int>();
 
-  HomePage(Map map){
-    this.map = map;
+  HomePage(Map map1, Map map2, Map map3){
+    this.map = map1;
+    this.verdictMap = map2;
+    this.ratingMap = map3;
     _gogo();
+    _verdict();
+    _rating();
   }
 
   _gogo(){
@@ -35,51 +44,49 @@ class HomePage extends StatefulWidget {
     }
   }
 
+  _verdict(){
+    var line = new List<VerdictTypes>();
+    verdictMap.forEach((key, value) { 
+      line.add(new VerdictTypes(key, value));
+    });
+
+    if(verdictMap.isNotEmpty){
+      _bar.add(
+        charts.Series(
+          domainFn: (VerdictTypes v, _) => v.verdict,
+          measureFn: (VerdictTypes v, _) => v.quantity,
+          id: '2020',
+          data: line,
+          fillPatternFn: (_, __) => charts.FillPatternType.solid,
+          fillColorFn: (VerdictTypes v, _) =>
+              charts.ColorUtil.fromDartColor(Color(0xff990099)),
+        ),
+      );
+    }
+  }
+
+  _rating(){
+    var lineData = new List<Rating>();
+    ratingMap.forEach((key, value) {
+      lineData.add(new Rating(key, value));
+    });
+
+    _line.add(
+      charts.Series(
+        colorFn: (__, _) => charts.ColorUtil.fromDartColor(Color(0xff990099)),
+        id: 'Rating Change',
+        data: lineData,
+        domainFn: (Rating r, _) => r.id,
+        measureFn: (Rating r, _) => r.rating,
+      ),
+    );
+  }
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
-//  _generateData(){
-//    var pie = new List<Task>();
-//
-//    map.forEach((key, value) {
-//      pie.add(new Task(key, value, Color((math.Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0)));
-//    });
-//
-//    if(map.isNotEmpty){
-//      _series.add(
-//        charts.Series(
-//          data: pie,
-//          domainFn: (Task task, _) => task.task,
-//          measureFn: (Task task, _) => task.val,
-//          colorFn: (Task task, _) => charts.ColorUtil.fromDartColor(task.colorVal),
-//          id: 'Daily Task',
-//          labelAccessorFn: (Task row, _) => '${row.val}',
-//        ),
-//      );
-//    }
-//  }
-//
-//  _getData() async {
-//    Api o = new Api();
-//    await o.getInfo();
-//    map = o.m;
-//    _generateData();
-//  }
-
-//  @override
-//  void initState(){
-//    super.initState();
-//    _series = List<charts.Series<Task,String>>();
-//    _gogo();
-//  }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -91,8 +98,8 @@ class _HomePageState extends State<HomePage> {
           appBar: AppBar(
             actions: [
               FlatButton.icon(
-                icon: Icon(Icons.settings),
-                label: Text('Input'),
+                icon: Icon(Icons.create),
+                label: Text('Handle'),
                 onPressed: (){},
               )
             ],
@@ -101,8 +108,8 @@ class _HomePageState extends State<HomePage> {
             bottom: TabBar(
               indicatorColor: Colors.brown,
               tabs: [
-                Tab(icon: Icon(Icons.bar_chart),),
                 Tab(icon: Icon(Icons.pie_chart),),
+                Tab(icon: Icon(Icons.bar_chart),),
                 Tab(icon: Icon(Icons.stacked_line_chart),),
               ],
             ),
@@ -115,7 +122,12 @@ class _HomePageState extends State<HomePage> {
                   child: Center(
                     child: Column(
                       children: <Widget>[
-                        Text('API Data'),
+                        Text(
+                            'Types of Problemes',
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
                         SizedBox(height: 10,),
                         Expanded(
                           child: charts.PieChart(
@@ -139,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                               arcWidth: 100,
                               arcRendererDecorators: [
                                 new charts.ArcLabelDecorator(
-                                  labelPosition: charts.ArcLabelPosition.inside,
+                                  labelPosition: charts.ArcLabelPosition.outside,
                                 ),
                               ],
                             ),
@@ -150,11 +162,63 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Text(
-                'Annyeong'
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Container(
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          'Verdicts on Problems',
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        Expanded(
+                          child: charts.BarChart(
+                            widget._bar,
+                            animate: true,
+                            animationDuration: Duration(seconds: 2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              Text(
-                'Gamsahabnida'
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Container(
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: charts.LineChart(
+                            widget._line,
+                            defaultRenderer: new charts.LineRendererConfig(
+                              includeArea: true,
+                              stacked: true,
+                            ),
+                            animate: true,
+                            animationDuration: Duration(seconds: 2),
+                            behaviors: [
+                              new charts.ChartTitle(
+                                'Contest ID',
+                                behaviorPosition: charts.BehaviorPosition.bottom,
+                                titleOutsideJustification: charts.OutsideJustification.middleDrawArea,
+                              ),
+                              new charts.ChartTitle(
+                                'Rating Change',
+                                behaviorPosition: charts.BehaviorPosition.start,
+                                titleOutsideJustification: charts.OutsideJustification.middleDrawArea,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -170,4 +234,18 @@ class Task{
   Color colorVal;
 
   Task(this.task, this.val, this.colorVal);
+}
+
+class VerdictTypes{
+  String verdict;
+  int quantity;
+
+  VerdictTypes(this.verdict, this.quantity);
+}
+
+class Rating{
+  int id;
+  int rating;
+
+  Rating(this.id, this.rating);
 }
