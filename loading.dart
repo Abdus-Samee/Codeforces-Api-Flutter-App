@@ -21,7 +21,7 @@ class _LoadingState extends State<Loading> {
     Api o = new Api();
     await o.getInfo();
     Navigator.pushReplacement(context, MaterialPageRoute(
-      builder: (BuildContext context) => HomePage(o.m)
+      builder: (BuildContext context) => HomePage(o.m, o.verdict, o.rating)
     ));
   }
 
