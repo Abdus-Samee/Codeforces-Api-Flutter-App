@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutterapi/api.dart';
+import 'package:flutterapi/handle.dart';
 import 'dart:math' as math;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class HomePage extends StatefulWidget {
 
   List<charts.Series<Task,String>> _series = List<charts.Series<Task,String>>();
-  List<charts.Series<VerdictTypes,String>> _bar = List<charts.Series<VerdictTypes,String>>();
+  List<charts.Series<Pollution,String>> _bar = List<charts.Series<Pollution,String>>();
   List<charts.Series<Rating,int>> _line = List<charts.Series<Rating,int>>();
   
   Map<String, int> map = Map<String,int>();
@@ -45,20 +46,20 @@ class HomePage extends StatefulWidget {
   }
 
   _verdict(){
-    var line = new List<VerdictTypes>();
+    var line = new List<Pollution>();
     verdictMap.forEach((key, value) { 
-      line.add(new VerdictTypes(key, value));
+      line.add(new Pollution(key, value));
     });
 
     if(verdictMap.isNotEmpty){
       _bar.add(
         charts.Series(
-          domainFn: (VerdictTypes v, _) => v.verdict,
-          measureFn: (VerdictTypes v, _) => v.quantity,
+          domainFn: (Pollution pollution, _) => pollution.verdict,
+          measureFn: (Pollution pollution, _) => pollution.quantity,
           id: '2020',
           data: line,
           fillPatternFn: (_, __) => charts.FillPatternType.solid,
-          fillColorFn: (VerdictTypes v, _) =>
+          fillColorFn: (Pollution pollution, _) =>
               charts.ColorUtil.fromDartColor(Color(0xff990099)),
         ),
       );
@@ -100,7 +101,11 @@ class _HomePageState extends State<HomePage> {
               FlatButton.icon(
                 icon: Icon(Icons.create),
                 label: Text('Handle'),
-                onPressed: (){},
+                onPressed: (){
+                  Navigator.pushReplacement(context, MaterialPageRoute(
+                    builder: (BuildContext context) => Handle(),
+                  ));
+                },
               )
             ],
             title: Text("Codeforces API"),
@@ -123,7 +128,7 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       children: <Widget>[
                         Text(
-                            'Types of Problemes',
+                            'Types of Problems',
                           style: TextStyle(
                             fontSize: 20,
                           ),
@@ -236,11 +241,11 @@ class Task{
   Task(this.task, this.val, this.colorVal);
 }
 
-class VerdictTypes{
+class Pollution{
   String verdict;
   int quantity;
 
-  VerdictTypes(this.verdict, this.quantity);
+  Pollution(this.verdict, this.quantity);
 }
 
 class Rating{
