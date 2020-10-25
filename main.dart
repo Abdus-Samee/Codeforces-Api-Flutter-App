@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapi/handle.dart';
 import 'package:flutterapi/home.dart';
 import 'package:flutterapi/loading.dart';
 
@@ -11,10 +12,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/',
+      initialRoute: '/handle',
       routes: {
-        '/': (context) => Loading(),
         '/home': (context) => HomePage({}, {}, {}),
+        '/handle': (context) => Handle(),
       },
     );
   }
