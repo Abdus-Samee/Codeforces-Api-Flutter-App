@@ -5,6 +5,13 @@ import 'package:flutterapi/home.dart';
 import 'package:http/http.dart';
 
 class Loading extends StatefulWidget {
+
+  String _handle;
+
+  Loading(String handle){
+    _handle = handle;
+  }
+
   @override
   _LoadingState createState() => _LoadingState();
 }
@@ -18,7 +25,7 @@ class _LoadingState extends State<Loading> {
   }
 
   void getData() async {
-    Api o = new Api();
+    Api o = new Api(widget._handle);
     await o.getInfo();
     Navigator.pushReplacement(context, MaterialPageRoute(
       builder: (BuildContext context) => HomePage(o.m, o.verdict, o.rating)
